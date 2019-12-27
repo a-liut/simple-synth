@@ -18,8 +18,25 @@ add_library( # Sets the name of the library.
 
         # Provides a relative path to your source file(s).
         jni-bridge.cpp
-        Oscillator.cpp
-        AudioEngine.cpp)
+        engine/oscillator/Oscillator.cpp
+        engine/AudioEngine.cpp
+        )
+
+
+### INCLUDE OBOE LIBRARY ###
+
+# Set the path to the Oboe library directory
+set(OBOE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../../../oboe)
+
+add_subdirectory(${OBOE_DIR} ./oboe-bin)
+
+# Specify the path to the Oboe header files and the source.
+include_directories(
+        ${OBOE_DIR}/include
+        ${OBOE_DIR}/src
+)
+
+### END OBOE INCLUDE SECTION ###
 
 # Searches for a specified prebuilt library and stores the path as a
 # variable. Because CMake includes system libraries in the search path by
@@ -45,4 +62,4 @@ target_link_libraries( # Specifies the target library.
         # included in the NDK.
         ${log-lib}
 
-        aaudio)
+        oboe)

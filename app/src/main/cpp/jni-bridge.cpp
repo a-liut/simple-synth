@@ -1,9 +1,9 @@
 #include <jni.h>
 #include <string>
-#include "AudioEngine.h"
+#include "engine/AudioEngine.h"
 #include <android/input.h>
 
-static AudioEngine *audioEngine = new AudioEngine();
+static AudioEngine *audioEngine = nullptr;
 
 extern "C" {
 
@@ -30,7 +30,7 @@ Java_it_aliut_simplesynth_MainActivity_startEngine(
         JNIEnv *env,
         jobject /* this */
 ) {
-    audioEngine->start();
+    audioEngine = new AudioEngine();
 }
 
 JNIEXPORT void JNICALL
@@ -38,7 +38,10 @@ Java_it_aliut_simplesynth_MainActivity_stopEngine(
         JNIEnv *env,
         jobject /* this */
 ) {
-    audioEngine->stop();
+    if (audioEngine != nullptr) {
+        delete audioEngine;
+        audioEngine = nullptr;
+    }
 }
 
 JNIEXPORT void JNICALL
