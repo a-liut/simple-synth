@@ -6,13 +6,14 @@
 #include "AudioEngine.h"
 #include "EngineCallback.h"
 
-AudioEngine::AudioEngine() {
-    createOscillator();
+AudioEngine::AudioEngine(int oscillatorsCount) {
+    oscillatorsCount_ = oscillatorsCount;
+    createOscillators();
     beginStreams();
 }
 
 AudioEngine::~AudioEngine() {
-    delete oscillator_;
+    delete oscillators_;
 }
 
 oboe::AudioStreamBuilder AudioEngine::defaultBuilder() {
@@ -28,7 +29,9 @@ void AudioEngine::beginStreams() {
     oboe::Result result = startStreams();
     if (result != oboe::Result::OK) stopStreams();
     else {
-        oscillator_->setSampleRate(outStream_->getSampleRate());
+        for (int i = 0; i < oscillatorsCount_; i++) {
+            oscillators_[i]->setSampleRate(outStream_->getSampleRate());
+        }
     }
 }
 
@@ -57,13 +60,17 @@ oboe::Result AudioEngine::startStreams() {
 
 void AudioEngine::createCallback() {
     callback_ = std::make_unique<EngineCallback>(
-            oscillator_,
+            oscillators_,
+            oscillatorsCount_,
             std::bind(&AudioEngine::beginStreams, this)
     );
 }
 
-void AudioEngine::createOscillator() {
-    oscillator_ = new Oscillator();
+void AudioEngine::createOscillators() {
+    oscillators_ = new Oscillator *[oscillatorsCount_];
+    for (int i = 0; i < oscillatorsCount_; i++) {
+        oscillators_[i] = new Oscillator();
+    }
 }
 
 oboe::Result AudioEngine::stopStreams() {
@@ -71,9 +78,13 @@ oboe::Result AudioEngine::stopStreams() {
 }
 
 void AudioEngine::setToneOn(bool isToneOn) {
-    oscillator_->setWaveOn(isToneOn);
+    for (int i = 0; i < oscillatorsCount_; i++) {
+        oscillators_[i]->setWaveOn(isToneOn);
+    }
 }
 
-void AudioEngine::setFrequency(double frequency) {
-    oscillator_->setFrequency(frequency);
+void AudioEngine::setFrequency(int channelId, double frequency) {
+    for (int i = 0; i < oscillatorsCount_; i++) {
+        oscillators_[i]->setFrequency(channelId, frequency);
+    }
 }

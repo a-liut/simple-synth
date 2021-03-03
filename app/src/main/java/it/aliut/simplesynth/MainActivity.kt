@@ -7,27 +7,41 @@ import androidx.appcompat.app.AppCompatActivity
 
 class MainActivity : AppCompatActivity() {
 
-    private val lowestFreq = 28.5 // lowest piano freq
-    private val highestFreq = 4186 // highest piano freq
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
         startEngine()
     }
 
-    private external fun touchEvent(action: Int)
+    private external fun touchEvent(pointerId: Int, action: Int)
 
     private external fun startEngine()
 
     private external fun stopEngine()
 
-    private external fun setFrequency(frequency: Double)
+    private external fun setFrequency(pointerId: Int, frequency: Double)
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         event?.let {
-            setFrequency(getFrequency(event))
-            touchEvent(event.action)
+            println("--->> id: ${event.getPointerId(0)}")
+            println("--->> find id: ${event.findPointerIndex(0)}")
+
+            val pointerId = event.getPointerId(0)
+
+            if (event.actionMasked == MotionEvent.ACTION_MOVE) {
+                setFrequency(
+                    pointerId,
+                    getFrequency(event)
+                )
+            }
+
+            touchEvent(
+                pointerId,
+                event.actionMasked
+            )
+
+            return true
         }
 
         return super.onTouchEvent(event)
@@ -37,7 +51,7 @@ class MainActivity : AppCompatActivity() {
         val size = Point()
         windowManager.defaultDisplay.getSize(size)
 
-        return lowestFreq + ((highestFreq * event.y) / size.y)
+        return (100.0 * event.y) / size.y
     }
 
     override fun onDestroy() {

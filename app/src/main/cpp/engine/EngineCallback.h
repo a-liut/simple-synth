@@ -12,13 +12,14 @@
 class EngineCallback : public oboe::AudioStreamCallback {
 public:
     EngineCallback(
-            Oscillator *oscillator,
+            Oscillator *oscillators[],
+            int oscillatorsCount,
             std::function<void(void)> restartFun
-    ) : oscillator_(oscillator), restartFun_(restartFun) {}
+    ) : oscillators_(oscillators), oscillatorsCount_(oscillatorsCount), restartFun_(restartFun) {}
 
     oboe::DataCallbackResult
     onAudioReady(oboe::AudioStream *oboeStream, void *audioData, int32_t numFrames) override {
-        oscillator_->render(static_cast<float *>(audioData), numFrames);
+        oscillators_->render(static_cast<float *>(audioData), numFrames);
         return oboe::DataCallbackResult::Continue;
     }
 
@@ -29,8 +30,10 @@ public:
     }
 
 private:
-    Oscillator *oscillator_;
+    Oscillator *oscillators_[];
+    int oscillatorsCount_;
     std::function<void(void)> restartFun_;
+
 };
 
 

@@ -10,7 +10,7 @@
 
 class AudioEngine {
 public:
-    AudioEngine();
+    AudioEngine(int oscillatorsCount);
 
     void beginStreams();
 
@@ -22,7 +22,7 @@ public:
 
     void setToneOn(bool isToneOn);
 
-    void setFrequency(double frequency);
+    void setFrequency(int channelId, double frequency);
 
 private:
     void openOutStream();
@@ -31,12 +31,13 @@ private:
 
     void createCallback();
 
-    void createOscillator();
+    void createOscillators();
 
     oboe::ManagedStream outStream_;
     std::unique_ptr<oboe::AudioStreamCallback> callback_;
 
-    Oscillator *oscillator_;
+    Oscillator *oscillators_[];
+    int oscillatorsCount_;
 };
 
 
